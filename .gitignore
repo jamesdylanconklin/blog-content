@@ -1,0 +1,44 @@
+# Hugo build output
+public/
+
+# Hugo cache/resources
+resources/_gen/
+
+# Hugo module cache
+_vendor/
+
+# Theme submodules (if using git submodules for themes)
+themes/*/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+*.temp
+
+# Log files
+*.log
+
+# Node modules (if theme uses npm)
+node_modules/
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.local
+.hugo_build.lock
