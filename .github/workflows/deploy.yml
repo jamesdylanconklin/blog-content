@@ -10,7 +10,7 @@ jobs:
   deploy:
     # Split out staging/dev later.
     # environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
-    environment: 'dev' # Nix ASAP. Testing purposes only. Trying to see if above logic was faling.
+    environment: dev # Nix ASAP. Testing purposes only. Trying to see if above logic was faling.
     runs-on: ubuntu-latest
     permissions:
       id-token: write
