@@ -20,6 +20,18 @@ jobs:
       with:
         submodules: recursive
     
+    # Debug submodule status
+    - name: Debug submodule status
+      run: |
+        echo "=== Git submodule status ==="
+        git submodule status
+        echo "=== Checking for submodule directories ==="
+        find . -name ".gitmodules" -exec cat {} \;
+        echo "=== Directory listing ==="
+        ls -la
+        echo "=== Themes directory ==="
+        ls -la themes/ || echo "No themes directory"
+    
     # Initial AWS auth (using OIDC with a basic role)
     - name: Configure initial AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
