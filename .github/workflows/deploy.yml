@@ -45,7 +45,8 @@ jobs:
         echo "BLOG_BUCKET=$BLOG_BUCKET" >> $GITHUB_ENV
         echo "CLOUDFRONT_ID=$CLOUDFRONT_ID" >> $GITHUB_ENV
         echo "DOMAIN_NAME=$DOMAIN_NAME" >> $GITHUB_ENV
-    
+        echo "FINGERPRINT=${{ github.sha }}/${{ github.run_id }}/${{ github.run_number}}" >> $GITHUB_ENV
+
     # Re-configure with the blog-specific role
     - name: Configure blog AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
@@ -67,53 +68,52 @@ jobs:
         hugo-version: '0.128.0'
         extended: true
     
-    # # Build site with commit hash
-    # - name: Build site with commit hash
-    #   run: |
-    #     # Add commit hash to hugo config
-    #     echo "" >> hugo.toml
-    #     echo "# Build metadata" >> hugo.toml
-    #     echo "commit_hash = \"${{ github.sha }}\"" >> hugo.toml
-    #     
-    #     # Build site, omitting drafts/future for releases
-    #     if [[ "${{ github.event_name }}" == "release" ]]; then
-    #       hugo --minify
-    #     else
-    #       hugo --minify --buildDrafts --buildFuture
-    #     fi
+    # Build site with commit hash
+    - name: Build site with commit hash
+      run: |
+        echo ""
+        # Add commit hash to hfingerprint file
+        echo "${{ env.FINGERPRINT }}" > content/version/fingerprint.txt
+
+        # Build site, omitting drafts/future for releases
+        if [[ "${{ github.event_name }}" == "release" ]]; then
+          hugo --minify
+        else
+          hugo --minify --buildDrafts --buildFuture
+        fi
     
-    # # Pre-cache current index
-    # - name: Pre-cache current index
-    #   run: curl -s https://${{ env.DOMAIN_NAME }}/ > /dev/null || true
+    # Pre-cache current index
+    - name: Pre-cache current index
+      run: curl -s https://${{ env.DOMAIN_NAME }}/version/fingerprint.txt > /dev/null || true
 
-    # # Deploy to S3
-    # - name: Deploy to S3
-    #   run: aws s3 sync ./public/ s3://${{ env.BLOG_BUCKET }}/ --delete
+    # Deploy to S3
+    - name: Deploy to S3
+      run: aws s3 sync ./public/ s3://${{ env.BLOG_BUCKET }}/ --delete
 
-    # # Verify S3 deployment
-    # - name: Verify S3 deployment
-    #   run: |
-    #     S3_HASH=$(aws s3 cp s3://${{ env.BLOG_BUCKET }}/index.html - | grep -o 'commit_hash = "[^"]*"' | cut -d'"' -f2)
-    #     if [ "$S3_HASH" != "${{ github.sha }}" ]; then 
-    #       echo "S3 deployment failed - hash mismatch: expected ${{ github.sha }}, got $S3_HASH"
-    #       exit 1
-    #     fi
-    #     echo "S3 deployment verified - commit hash matches"
+    # Verify S3 deployment
+    - name: Verify S3 deployment
+      run: |
+        S3_FINGERPRINT=$(aws s3 cp s3://${{ env.BLOG_BUCKET }}/version/fingerprint.txt -)
+        if [ "$S3_FINGERPRINT" != "${{ env.FINGERPRINT }}" ]; then
+          echo "S3 deployment failed - fingerprint mismatch: expected ${{ env.FINGERPRINT }}, got $S3_FINGERPRINT"
+          exit 1
+        fi
+        echo "S3 deployment verified - fingerprint matches"
 
-    # # Invalidate CloudFront
-    # - name: Invalidate CloudFront
-    #   run: |
-    #     INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_ID }} --paths "/*" --query 'Invalidation.Id' --output text)
-    #     echo "CloudFront invalidation created: $INVALIDATION_ID"
+    # Invalidate CloudFront
+    - name: Invalidate CloudFront
+      run: |
+        INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_ID }} --paths "/*" --query 'Invalidation.Id' --output text)
+        echo "CloudFront invalidation created: $INVALIDATION_ID"
 
-    # # Verify deployment
-    # - name: Verify deployment
-    #   run: |
-    #     echo "Waiting 30 seconds for CloudFront invalidation..."
-    #     sleep 30
-    #     DEPLOYED_HASH=$(curl -s https://${{ env.DOMAIN_NAME }}/ | grep -o 'commit_hash = "[^"]*"' | cut -d'"' -f2)
-    #     if [ "$DEPLOYED_HASH" != "${{ github.sha }}" ]; then 
-    #       echo "Deployment verification failed - hash mismatch: expected ${{ github.sha }}, got $DEPLOYED_HASH"
-    #       exit 1
-    #     fi
-    #     echo "Deployment verified successfully - site is live with new content"
+    # Verify deployment
+    - name: Verify deployment
+      run: |
+        echo "Waiting 30 seconds for CloudFront invalidation..."
+        sleep 30
+        DEPLOYED_FINGERPRINT=$(curl -s https://${{ env.DOMAIN_NAME }}/version/fingerprint.txt)
+        if [ "$DEPLOYED_FINGERPRINT" != "${{ env.FINGERPRINT }}" ]; then
+          echo "Deployment verification failed - fingerprint mismatch: expected ${{ env.FINGERPRINT }}, got $DEPLOYED_FINGERPRINT"
+          exit 1
+        fi
+        echo "Deployment verified successfully - site is live with new content"
