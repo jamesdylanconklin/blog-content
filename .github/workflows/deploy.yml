@@ -51,7 +51,7 @@ jobs:
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ env.BLOG_ROLE_ARN }}
-        aws-region: us-east-1
+        aws-region: us-east-2
     
     # Test AWS CLI availability
     - name: Test AWS CLI
