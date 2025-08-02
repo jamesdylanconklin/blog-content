@@ -9,12 +9,14 @@ Vanilla Hugo. Follow the [Quick-Start Guide](https://gohugo.io/getting-started/q
 ## Deploy
 
 We will define a GitHub Action that, on PR merge and on Tagged release:
-- Pulls some config pupulated to AWS Parameter Store by the blog-infra project
+- Installs version-locked Hugo on runner.
+- Pulls some config populated to AWS Parameter Store by the blog-infra project
   - IAM role for GH Actions (Using bootstrapped, minimal role in GH Action secrets)
-  - domain name for Hugo config.
+  - dSite URL for Hugo config.
   - CloudFront Distribution id for cache invalidation on publish
   - Blog content S3 bucket name
 - Builds the site, omitting draft or future content for Release builds
+  - Add a finger print of commit hash and run id as a leaf bundle file in Hugo content
 - Pushes built content to S3
 - Invalidates CloudFront cache
   - potential nice-to-have: only for files changed in PR? Might get messy with invalidation costs.

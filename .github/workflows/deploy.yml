@@ -59,11 +59,9 @@ jobs:
     # Build site with commit hash
     - name: Build site with commit hash
       run: |
-        echo 'Mod initialization complete'
         hugo mod get -u ./...
-        echo 'Mod update complete'
         hugo mod tidy
-        echo 'Mod tidy complete'
+        
         # Add commit hash to hfingerprint file
         echo "${{ env.FINGERPRINT }}" > content/version/fingerprint.txt
 
@@ -98,17 +96,17 @@ jobs:
         INVALIDATION_ID=$(aws cloudfront create-invalidation --distribution-id ${{ env.CLOUDFRONT_ID }} --paths "/*" --query 'Invalidation.Id' --output text)
         echo "CloudFront invalidation created: $INVALIDATION_ID"
 
-    # Verify deployment
+    # Verify deployment and cache invalidation
     - name: Verify deployment
       run: |
         echo "Waiting 30 seconds for CloudFront invalidation..."
         sleep 30
                 
-        # Try curl with verbose output and error handling
+        # Fetch currently available fingerprint.
         DEPLOYED_FINGERPRINT=$(curl -s --fail ${{ env.BASE_URL }}/version/fingerprint.txt) 
                 
         if [ "$DEPLOYED_FINGERPRINT" != "${{ env.FINGERPRINT }}" ]; then
           echo "Deployment verification failed - fingerprint mismatch: expected ${{ env.FINGERPRINT }}, got $DEPLOYED_FINGERPRINT"
           exit 1
         fi
-        echo "Deployment verified successfully - site is live with new content"
+        echo "Deployment verified successfully - site is live with (maybe) new content"
