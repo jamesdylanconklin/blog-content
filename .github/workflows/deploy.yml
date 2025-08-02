@@ -103,7 +103,23 @@ jobs:
       run: |
         echo "Waiting 30 seconds for CloudFront invalidation..."
         sleep 30
-        DEPLOYED_FINGERPRINT=$(curl -s https://${{ env.DOMAIN_NAME }}/version/fingerprint.txt)
+        echo https//${{ env.DOMAIN_NAME }}/version/fingerprint.txt
+        echo "Attempting to fetch fingerprint from: https://${{ env.DOMAIN_NAME }}/version/fingerprint.txt"
+        
+        # Test if domain resolves
+        nslookup ${{ env.DOMAIN_NAME }} || echo "DNS lookup failed"
+        
+        # Try curl with verbose output and error handling
+        DEPLOYED_FINGERPRINT=$(curl -s --fail https://${{ env.DOMAIN_NAME }}/version/fingerprint.txt) || {
+          echo "Curl failed with exit code $?"
+          echo "Trying with verbose output:"
+          curl -v https://${{ env.DOMAIN_NAME }}/version/fingerprint.txt || true
+          exit 1
+        }
+        
+        echo "Expected fingerprint: ${{ env.FINGERPRINT }}"
+        echo "Deployed fingerprint: $DEPLOYED_FINGERPRINT"
+        
         if [ "$DEPLOYED_FINGERPRINT" != "${{ env.FINGERPRINT }}" ]; then
           echo "Deployment verification failed - fingerprint mismatch: expected ${{ env.FINGERPRINT }}, got $DEPLOYED_FINGERPRINT"
           exit 1
