@@ -24,6 +24,14 @@ jobs:
       with:
         role-to-assume: ${{ secrets.AWS_PARAMETER_ROLE_ARN }}
         aws-region: us-east-1
+
+  
+        # Test AWS CLI availability
+    - name: Test AWS CLI 0
+      run: |
+        which aws
+        aws --version
+        aws sts get-caller-identity
     
     # Pull config from Parameter Store (including the main role ARN)
     - name: Get configuration from Parameter Store
