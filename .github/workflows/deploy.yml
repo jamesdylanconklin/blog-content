@@ -59,14 +59,11 @@ jobs:
     # Build site with commit hash
     - name: Build site with commit hash
       run: |
+        hugo mod init github.com/${{ github.repository }}
         hugo mod get -u ./...
         hugo mod tidy
-        pwd
         # Add commit hash to hfingerprint file
         echo "${{ env.FINGERPRINT }}" > content/version/fingerprint.txt
-        cat content/version/fingerprint.txt
-
-        ls -lat .
 
         # Build site, omitting drafts/future for releases
         if [[ "${{ github.event_name }}" == "release" ]]; then
