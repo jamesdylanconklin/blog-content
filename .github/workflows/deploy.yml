@@ -9,8 +9,7 @@ on:
 jobs:
   deploy:
     # Split out staging/dev later.
-    # environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
-    environment: dev # Nix ASAP. Testing purposes only. Trying to see if above logic was faling.
+    environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -37,12 +36,7 @@ jobs:
     # Pull config from Parameter Store (including the main role ARN)
     - name: Get configuration from Parameter Store
       run: |
-        echo "Environment: '${{ env.environment }}'"
-        echo "Event name: ${{ github.event_name }}"
-        echo "Expected path: /blog/${{ vars.ENVIRONMENT }}/deployment/github-actions-role-arn"
-
         BLOG_ROLE_ARN=$(aws ssm get-parameter --name "/blog/${{ vars.ENVIRONMENT }}/deployment/github-actions-role-arn" --query "Parameter.Value" --output text)
-        test $BLOG_ROLE_ARN && echo "Role fetched successfully"
         BLOG_BUCKET=$(aws ssm get-parameter --name "/blog/${{ vars.ENVIRONMENT }}/content/bucket-name" --query "Parameter.Value" --output text)
         CLOUDFRONT_ID=$(aws ssm get-parameter --name "/blog/${{ vars.ENVIRONMENT }}/content/cloudfront-distribution-id" --query "Parameter.Value" --output text)
         DOMAIN_NAME=$(aws ssm get-parameter --name "/blog/${{ vars.ENVIRONMENT }}/content/website-url" --query "Parameter.Value" --output text)
@@ -66,12 +60,12 @@ jobs:
         aws --version
         aws sts get-caller-identity
 
-    # # Install Hugo
-    # - name: Setup Hugo
-    #   uses: peaceiris/actions-hugo@v2
-    #   with:
-    #     hugo-version: '0.128.0'
-    #     extended: true
+    # Install Hugo
+    - name: Setup Hugo
+      uses: peaceiris/actions-hugo@v2
+      with:
+        hugo-version: '0.128.0'
+        extended: true
     
     # # Build site with commit hash
     # - name: Build site with commit hash
