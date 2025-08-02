@@ -9,7 +9,8 @@ on:
 jobs:
   deploy:
     # Split out staging/dev later.
-    environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
+    # environment: ${{ github.event_name == 'release' && 'production' || 'dev' }}
+    environment: 'dev' # Nix ASAP. Testing purposes only. Trying to see if above logic was faling.
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -36,6 +37,10 @@ jobs:
     # Pull config from Parameter Store (including the main role ARN)
     - name: Get configuration from Parameter Store
       run: |
+        echo "Environment: '${{ job.environment }}'"
+        echo "Event name: ${{ github.event_name }}"
+        echo "Expected path: /blog/${{ job.environment }}/deployment/github-actions-role"
+        
         BLOG_ROLE_ARN=$(aws ssm get-parameter --name "/blog/${{ job.environment }}/deployment/github-actions-role" --query "Parameter.Value" --output text)
         BLOG_BUCKET=$(aws ssm get-parameter --name "/blog/${{ job.environment }}/content/s3-bucket" --query "Parameter.Value" --output text)
         CLOUDFRONT_ID=$(aws ssm get-parameter --name "/blog/${{ job.environment }}/content/cloudfront-distribution-id" --query "Parameter.Value" --output text)
