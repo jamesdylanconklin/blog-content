@@ -20,7 +20,20 @@ jobs:
       with:
         submodules: recursive
     
-    # Debug submodule status
+
+    
+    # Force submodule initialization if needed
+    - name: Initialize and update submodules
+      run: |
+        echo "=== Initializing submodules ==="
+        git submodule init
+        git submodule update --recursive
+        echo "=== Post-update submodule status ==="
+        git submodule status
+        echo "=== Themes directory after update ==="
+        ls -la themes/ || echo "Still no themes directory"
+
+        # Debug submodule status
     - name: Debug submodule status
       run: |
         echo "=== Git submodule status ==="
