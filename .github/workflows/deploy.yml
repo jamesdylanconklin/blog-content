@@ -60,8 +60,11 @@ jobs:
     - name: Build site with commit hash
       run: |
         hugo mod init github.com/${{ github.repository }}
+        echo 'Mod initialization complete'
         hugo mod get -u ./...
+        echo 'Mod update complete'
         hugo mod tidy
+        echo 'Mod tidy complete'
         # Add commit hash to hfingerprint file
         echo "${{ env.FINGERPRINT }}" > content/version/fingerprint.txt
 
