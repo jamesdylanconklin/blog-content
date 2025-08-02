@@ -61,19 +61,19 @@ jobs:
       run: |
         hugo mod init github.com/${{ github.repository }}
         echo 'Mod initialization complete'
-        hugo mod get -u ./...
-        echo 'Mod update complete'
-        hugo mod tidy
-        echo 'Mod tidy complete'
-        # Add commit hash to hfingerprint file
-        echo "${{ env.FINGERPRINT }}" > content/version/fingerprint.txt
+        # hugo mod get -u ./...
+        # echo 'Mod update complete'
+        # hugo mod tidy
+        # echo 'Mod tidy complete'
+        # # Add commit hash to hfingerprint file
+        # echo "${{ env.FINGERPRINT }}" > content/version/fingerprint.txt
 
-        # Build site, omitting drafts/future for releases
-        if [[ "${{ github.event_name }}" == "release" ]]; then
-          hugo --minify
-        else
-          hugo --minify --buildDrafts --buildFuture
-        fi
+        # # Build site, omitting drafts/future for releases
+        # if [[ "${{ github.event_name }}" == "release" ]]; then
+        #   hugo --minify
+        # else
+        #   hugo --minify --buildDrafts --buildFuture
+        # fi
     
     # Pre-cache current index
     - name: Pre-cache current index
