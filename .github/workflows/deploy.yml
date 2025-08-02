@@ -39,14 +39,14 @@ jobs:
       run: |
         echo "Environment: '${{ env.environment }}'"
         echo "Event name: ${{ github.event_name }}"
-        echo "Expected path: /blog/${{ env.environment }}/deployment/github-actions-role"
+        echo "Expected path: /blog/${{ vars.ENVIRONMENT }}/deployment/github-actions-role-arn"
 
-        BLOG_ROLE_ARN=$(aws ssm get-parameter --name "/blog/dev/deployment/github-actions-role-arn" --query "Parameter.Value" --output text)
+        BLOG_ROLE_ARN=$(aws ssm get-parameter --name "/blog/${{ vars.ENVIRONMENT }}/deployment/github-actions-role-arn" --query "Parameter.Value" --output text)
         test $BLOG_ROLE_ARN && echo "Role fetched successfully"
-        BLOG_BUCKET=$(aws ssm get-parameter --name "/blog/${{ env.environment }}/content/s3-bucket" --query "Parameter.Value" --output text)
-        CLOUDFRONT_ID=$(aws ssm get-parameter --name "/blog/${{ env.environment }}/content/cloudfront-distribution-id" --query "Parameter.Value" --output text)
-        DOMAIN_NAME=$(aws ssm get-parameter --name "/blog/${{ env.environment }}/content/domain-name" --query "Parameter.Value" --output text)
-        
+        BLOG_BUCKET=$(aws ssm get-parameter --name "/blog/${{ vars.ENVIRONMENT }}/content/s3-bucket" --query "Parameter.Value" --output text)
+        CLOUDFRONT_ID=$(aws ssm get-parameter --name "/blog/${{ vars.ENVIRONMENT }}/content/cloudfront-distribution-id" --query "Parameter.Value" --output text)
+        DOMAIN_NAME=$(aws ssm get-parameter --name "/blog/${{ vars.ENVIRONMENT }}/content/domain-name" --query "Parameter.Value" --output text)
+
         echo "BLOG_ROLE_ARN=$BLOG_ROLE_ARN" >> $GITHUB_ENV
         echo "BLOG_BUCKET=$BLOG_BUCKET" >> $GITHUB_ENV
         echo "CLOUDFRONT_ID=$CLOUDFRONT_ID" >> $GITHUB_ENV
