@@ -29,7 +29,10 @@ jobs:
   
         # Test AWS CLI availability
     - name: Test AWS CLI 0
+      # I know echoing a secret is bad. I need to see if it's actually getting used. I'll delete soon, I promise.
+      # Also a role arn isn't super sensitive, bite meeeeeeee
       run: |
+        echo ${{ secrets.AWS_PARAMETER_ROLE_ARN }}
         which aws
         aws --version
         aws sts get-caller-identity
