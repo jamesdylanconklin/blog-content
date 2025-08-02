@@ -36,10 +36,10 @@ jobs:
     # Pull config from Parameter Store (including the main role ARN)
     - name: Get configuration from Parameter Store
       run: |
-        BLOG_ROLE_ARN=$(aws ssm get-parameter --name "/blog/${{ job.environment }}//github-actions-role" --query "Parameter.Value" --output text)
-        BLOG_BUCKET=$(aws ssm get-parameter --name "/blog/${{ job.environment }}//s3-bucket" --query "Parameter.Value" --output text)
-        CLOUDFRONT_ID=$(aws ssm get-parameter --name "/blog/${{ job.environment }}//cloudfront-distribution-id" --query "Parameter.Value" --output text)
-        DOMAIN_NAME=$(aws ssm get-parameter --name "/blog/${{ job.environment }}//domain-name" --query "Parameter.Value" --output text)
+        BLOG_ROLE_ARN=$(aws ssm get-parameter --name "/blog/${{ job.environment }}/deployment/github-actions-role" --query "Parameter.Value" --output text)
+        BLOG_BUCKET=$(aws ssm get-parameter --name "/blog/${{ job.environment }}/content/s3-bucket" --query "Parameter.Value" --output text)
+        CLOUDFRONT_ID=$(aws ssm get-parameter --name "/blog/${{ job.environment }}/content/cloudfront-distribution-id" --query "Parameter.Value" --output text)
+        DOMAIN_NAME=$(aws ssm get-parameter --name "/blog/${{ job.environment }}/content/domain-name" --query "Parameter.Value" --output text)
         
         echo "BLOG_ROLE_ARN=$BLOG_ROLE_ARN" >> $GITHUB_ENV
         echo "BLOG_BUCKET=$BLOG_BUCKET" >> $GITHUB_ENV
