@@ -21,45 +21,12 @@ jobs:
         submodules: recursive
         token: ${{ secrets.GITHUB_TOKEN }}
     
-
-    
-    # # Force submodule initialization if needed
-    # - name: Initialize and update submodules
-    #   run: |
-    #     echo "=== Initializing submodules ==="
-    #     git submodule init
-    #     git submodule update --recursive
-    #     echo "=== Post-update submodule status ==="
-    #     git submodule status
-    #     echo "=== Themes directory after update ==="
-    #     ls -la themes/ || echo "Still no themes directory"
-
-    #     # Debug submodule status
-    - name: Debug submodule status
-      run: |
-        echo "=== Git submodule status ==="
-        git submodule status
-        echo "=== Checking for submodule directories ==="
-        find . -name ".gitmodules" -exec cat {} \;
-        echo "=== Directory listing ==="
-        ls -la
-        echo "=== Themes directory ==="
-        ls -la themes/ || echo "No themes directory"
-    
     # Initial AWS auth (using OIDC with a basic role)
     - name: Configure initial AWS credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
         role-to-assume: ${{ secrets.AWS_PARAMETER_ROLE_ARN }}
         aws-region: us-east-2
-
-  
-        # Test AWS CLI availability
-    - name: Test AWS CLI 0
-      run: |
-        which aws
-        aws --version
-        aws sts get-caller-identity
     
     # Pull config from Parameter Store (including the main role ARN)
     - name: Get configuration from Parameter Store
@@ -81,14 +48,7 @@ jobs:
       with:
         role-to-assume: ${{ env.BLOG_ROLE_ARN }}
         aws-region: us-east-2
-    
-    # Test AWS CLI availability
-    - name: Test AWS CLI
-      run: |
-        which aws
-        aws --version
-        aws sts get-caller-identity
-
+  
     # Install Hugo
     - name: Setup Hugo
       uses: peaceiris/actions-hugo@v2
