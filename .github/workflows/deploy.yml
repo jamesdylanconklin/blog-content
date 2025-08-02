@@ -99,6 +99,8 @@ jobs:
     # Build site with commit hash
     - name: Build site with commit hash
       run: |
+        hugo mod get -u ./...
+        hugo mod tidy
         pwd
         # Add commit hash to hfingerprint file
         echo "${{ env.FINGERPRINT }}" > content/version/fingerprint.txt

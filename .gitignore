@@ -42,3 +42,5 @@ yarn.lock
 .env
 .env.local
 .hugo_build.lock
+go.mod
+go.sum
