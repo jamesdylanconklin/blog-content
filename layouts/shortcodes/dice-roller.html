@@ -1,0 +1,33 @@
+<form id="diceRollForm">
+  <label for="rollInput">Enter roll:</label>
+  <input type="text" id="rollInput" name="rollInput" />
+  <button type="submit">Roll</button>
+</form>
+
+<div id="rollResult">Roll Result:</div>
+
+<script>
+document.getElementById('diceRollForm').addEventListener('submit', function(event) {
+  event.preventDefault();
+  const rollInput = document.getElementById('rollInput').value;
+  const url = `https://m1qnw0956g.execute-api.us-east-2.amazonaws.com/dev/demos/roll/${encodeURIComponent(rollInput)}`;
+  fetch(url, { method: 'GET' })
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(data => {
+      const resultDiv = document.getElementById('rollResult');
+      if (Array.isArray(data.roll_result)) {
+      resultDiv.innerHTML = `<ul>${data.roll_result.map(item => `<li>${item}</li>`).join('')}</ul>`;
+      } else if (typeof data.roll_result === 'object' && data.roll_result !== null) {
+      resultDiv.innerHTML = `<pre>${JSON.stringify(data.roll_result, null, 2)}</pre>`;
+      } else {
+      resultDiv.textContent = data.roll_result;
+      }
+    })
+    .catch(() => {
+      document.getElementById('rollResult').textContent = "Invalid Roll String";
+    });
+});
+</script>
